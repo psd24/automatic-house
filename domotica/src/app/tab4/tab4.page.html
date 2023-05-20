@@ -1,0 +1,53 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>tab4</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">tab4</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div>
+    <ion-grid>
+      <ion-row>
+        <ion-col *ngFor="let device of devices; index as i" size="3">
+          <ion-card>
+            <ion-card-header>
+              <ion-card-subtitle>
+                {{device.type}}
+                <ion-icon name="ellipsis-vertical-outline" [id]="i"></ion-icon>
+              </ion-card-subtitle>
+              <ion-card-title>{{device.name}}</ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+
+              <ion-list>
+                <div *ngFor="let topic of device.topics; let i = index">
+                  <ion-item *ngIf="topic.subType != 'toggle'" lines="none">
+                    <ion-toggle  [enableOnOffLabels]="true" [checked]="topic.state" (ionChange)="toggleChange($event, device.topics[i])">{{topic.subType}}</ion-toggle>
+                  </ion-item>
+                </div>
+              </ion-list>
+
+            </ion-card-content>
+            <ion-popover [trigger]="i" [dismissOnSelect]="true" (click)="deleteDevice(device)">
+              <ng-template>
+                <ion-content>
+                  <ion-list>
+                    <ion-item [button]="true" [detail]="false">Eliminar</ion-item>
+                  </ion-list>
+                </ion-content>
+              </ng-template>
+            </ion-popover>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+</ion-content>

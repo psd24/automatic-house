@@ -1,0 +1,102 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Tab 3
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Tab 3</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- <app-explore-container name="Tab 3 page"></app-explore-container> -->
+  
+
+  <div id="container">
+    <ion-grid>
+      <ion-row>
+        <ion-col *ngFor="let sensor of allTopics" size="3">
+          <div *ngIf="sensor.type == 'door'">
+            <ion-card style="text-align: center;">
+              <ion-card-header>
+                <ion-card-title>{{sensor.name}}</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <div *ngFor="let topic of sensor.topics">
+                  <div *ngIf="topic.state && topic.subType == 'state'">
+                    <ion-icon *ngIf="topic.message == 'open'" name="lock-open-outline" style="font-size: 50px;" color="success"></ion-icon>
+                    <ion-icon *ngIf="topic.message == 'close'" name="lock-closed-outline" style="font-size: 50px;" color="danger"></ion-icon>
+                  </div>
+                  <div *ngIf="topic.state && topic.subType == 'battery'">
+                    <p style="font-size: 15px;">Bateria: {{topic.battery}}%</p>
+                  </div>
+                  <div *ngIf="topic.state && topic.subType == 'temperature'">
+                    <p style="font-size: 15px;">Temperatura: {{topic.temperature}}°C</p>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </div>
+          <div *ngIf="sensor.type == '1pm'">
+            <ion-card style="text-align: center;" (click)="callSwitch(sensor.id)">
+              <ion-card-header>
+                <ion-card-title>{{sensor.name}}</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <div *ngFor="let topic of sensor.topics">
+                  <div *ngIf="topic.state && topic.subType == 'switch'">
+                    <ion-icon *ngIf="topic.switch == true" name="bulb-outline" style="font-size: 50px;" color="warning"></ion-icon>
+                    <ion-icon *ngIf="topic.switch == false" name="bulb-outline" style="font-size: 50px;"></ion-icon>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+  <ion-modal #modal trigger="open-modal" [backdropDismiss]="false">
+    <ng-template>
+      <ion-content>
+        <ion-toolbar>
+          <ion-title>Añadir dispositivo</ion-title>
+          <ion-buttons slot="end">
+            <ion-button color="light" (click)="modal.dismiss()"><ion-icon name="close-outline" style="font-size: 25px;"></ion-icon></ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+        <form [formGroup]="formDevice" (ngSubmit)="submit()">
+          <ion-list>
+            <ion-item>
+              <ion-input label="ID" formControlName="id"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input label="Nom" formControlName="name"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-select aria-label="Fruit" interface="popover" placeholder="Tipus" formControlName="type">
+                <ion-select-option value="door">DOOR</ion-select-option>
+                <ion-select-option value="1pm">PM</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+          <ion-button type="submit" expand="block" fill="outline" color="success" class="ion-margin-top" style="padding-left: 150px; padding-right: 150px;">Guardar</ion-button>
+        </form>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+
+</div>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button id="open-modal">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

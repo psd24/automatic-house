@@ -1,0 +1,44 @@
+version: "3.7"
+
+services:
+  node-red:
+    image: nodered/node-red:latest
+    environment:
+      - TZ=Europe/Amsterdam
+    ports:
+      - "1880:1880"
+    networks:
+      - node-red-net
+    volumes:
+      - node-red-data:/data
+  
+  mosquitto:
+    image: eclipse-mosquitto:2
+    user: mosquitto
+    volumes:
+      - type: bind
+        source: ./config/
+        target: /mosquitto/config/
+      - type: bind
+        source: ./log/
+        target: /mosquitto/log/
+      - type: volume
+        source: data
+        target: /mosquitto/data/
+    ports:
+      - target: 1883
+        published: 1883
+        protocol: tcp
+        mode: host
+      - target: 9001
+        published: 9001
+        protocol: tcp
+        mode: host
+
+volumes:
+  node-red-data:
+  data:
+    name: "mqtt-broker-data"
+
+networks:
+  node-red-net:
