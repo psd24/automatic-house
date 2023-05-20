@@ -51,6 +51,8 @@
                   <div *ngIf="topic.state && topic.subType == 'switch'">
                     <ion-icon *ngIf="topic.switch == true" name="bulb-outline" style="font-size: 50px;" color="warning"></ion-icon>
                     <ion-icon *ngIf="topic.switch == false" name="bulb-outline" style="font-size: 50px;"></ion-icon>
+                    <p style="font-size: 15px;">{{topic.apower}} W / {{topic.voltage}} V</p>
+                    <p style="font-size: 15px;">{{topic.aenergy?.total}} total energia / {{topic.temperature?.tC}}°C</p>
                   </div>
                 </div>
               </ion-card-content>

@@ -223,12 +223,16 @@ export class Tab3Page {
               sensor.info = message.payload.toString();
               // console.log(JSON.parse(sensor.info)['mqtt']['connected']);
             }else if(sensor.subType === StorageHelper.subType.SWITCH) {
+              console.log(JSON.parse(message.payload.toString()))
               sensor.switch = JSON.parse(message.payload.toString()).output;
+              sensor.apower = JSON.parse(message.payload.toString()).apower;
+              sensor.voltage = JSON.parse(message.payload.toString()).voltage;
+              sensor.aenergy = JSON.parse(message.payload.toString()).aenergy;
+              sensor.temperature = JSON.parse(message.payload.toString()).temperature;
             }
           });
           subscriptions.push(subscription);
         });
-        console.log(sensors);
         if(sensors.type == StorageHelper.type.PM ) {
           this._mqttService.publish(`${sensors.id}/command`, 'status_update', { qos: 2, retain: true } as IPublishOptions).subscribe({
             next: () => {
