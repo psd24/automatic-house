@@ -31,9 +31,9 @@ export class Tab3Page {
   async ionViewDidEnter() {
 
     this.formDevice = this.fb.group({
-      id: ['shellydw2-73C75E', [Validators.required, Validators.minLength(10)]],
-      name: ['Sensor porta principal', [Validators.required, Validators.minLength(2)]],
-      type: ['door', [Validators.required]],
+      id: ['shellyplus1pm-4855199c25c8', [Validators.required, Validators.minLength(10)]],
+      name: ['Sensor llum', [Validators.required, Validators.minLength(2)]],
+      type: ['1pm', [Validators.required]],
       topics: this.fb.array([
         this.fb.group({
           topic: ['', [Validators.required, Validators.minLength(10)]],
@@ -83,8 +83,8 @@ export class Tab3Page {
   }
 
   async submit() {
-    this.presentToastDuration('bottom', 'Validando dispositivo', 'primary');
     if(this.formDevice.get(['type']).value == StorageHelper.type.DOOR) {
+      this.presentToastDuration('bottom', 'Validando dispositivo', 'primary');
       const topicsArray = this.formDevice.get('topics') as FormArray;
       topicsArray.clear();
 
@@ -130,13 +130,13 @@ export class Tab3Page {
     if (this.formDevice.valid){
       /* await StorageHelper.remove(StorageHelper.params.SENSOR).then((value) => {
         console.log(value);
-      }); */
+      }); */if(this.formDevice.get(['type']).value == StorageHelper.type.DOOR) {
       const mqttPromise = new Promise<void>((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error('No se recibió respuesta del MQTT en el tiempo especificado'));
         }, 5000);
 
-        if(this.formDevice.get(['type']).value == StorageHelper.type.DOOR) {
+        
           this._mqttService.observe(`shellies/${this.formDevice.get(['id']).value}/info`).subscribe(async (message: IMqttMessage) => {
             clearTimeout(timeout);
         
@@ -151,11 +151,7 @@ export class Tab3Page {
               reject(new Error('El dispositivo no está conectado al MQTT'));
             }
           });
-        }else {
-          this.toastController.dismiss();
-          resolve();
-        }
-      });
+        });
       
       mqttPromise.then(async () => {
         // Se recibió respuesta del MQTT correctamente dentro del tiempo especificado
@@ -178,7 +174,33 @@ export class Tab3Page {
         this.toastController.dismiss();
         this.presentToast('bottom', error.message, 2000, 'danger');
       });
+    }else{
+      this.presentToastDuration('bottom', 'Validando dispositivo', 'primary', 2000);
+      await StorageHelper.get(StorageHelper.params.SENSOR).then((value) => {
+        this.allTopics = JSON.parse(value!) || [];
+      });
+      this.allTopics.push(this.formDevice.value);
+      await StorageHelper.add(StorageHelper.params.SENSOR, JSON.stringify(this.allTopics)).then((value) => {
+        // console.log(value);
+      });
+
+      this.stopMqtt();
+      this.startMqtt();
+      setTimeout(() => {
+        this._mqttService.publish(`${this.formDevice.get(['id']).value}/command/switch:0`, 'status_update', { qos: 2, retain: true } as IPublishOptions).subscribe({
+          next: () => {
+            // this.presentToastDuration('bottom', 'Comando enviado', 'success', 1500);
+          },
+          error: (error: Error) => {
+            this.presentToastDuration('bottom', error.message, 'danger', 1500);
+          }
+        });
+
+        this.modalCtrl.dismiss(this.formDevice.value);
+        this.presentToast('bottom', 'Dispositivo añadido', 2000, 'success');
+      }, 2000);
     }
+  }
     else {
       console.log(this.formDevice);
     }
@@ -200,13 +222,15 @@ export class Tab3Page {
             }else if(sensor.subType === StorageHelper.subType.INFO) {
               sensor.info = message.payload.toString();
               // console.log(JSON.parse(sensor.info)['mqtt']['connected']);
-            }else if(sensor.subType === StorageHelper.subType.SWITCH) { 
+            }else if(sensor.subType === StorageHelper.subType.SWITCH) {
               sensor.switch = JSON.parse(message.payload.toString()).output;
             }
           });
           subscriptions.push(subscription);
         });
+        
       }
+      console.log(this.allTopics);
     }
     this.allSubscriptions = subscriptions;
   }
