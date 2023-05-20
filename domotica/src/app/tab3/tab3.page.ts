@@ -187,7 +187,7 @@ export class Tab3Page {
       this.stopMqtt();
       this.startMqtt();
       setTimeout(() => {
-        this._mqttService.publish(`${this.formDevice.get(['id']).value}/command/switch:0`, 'status_update', { qos: 2, retain: true } as IPublishOptions).subscribe({
+        this._mqttService.publish(`${this.formDevice.get(['id']).value}/command`, 'status_update', { qos: 2, retain: true } as IPublishOptions).subscribe({
           next: () => {
             // this.presentToastDuration('bottom', 'Comando enviado', 'success', 1500);
           },
@@ -228,7 +228,17 @@ export class Tab3Page {
           });
           subscriptions.push(subscription);
         });
-        
+        console.log(sensors);
+        if(sensors.type == StorageHelper.type.PM ) {
+          this._mqttService.publish(`${sensors.id}/command`, 'status_update', { qos: 2, retain: true } as IPublishOptions).subscribe({
+            next: () => {
+              // this.presentToastDuration('bottom', 'Comando enviado', 'success', 1500);
+            },
+            error: (error: Error) => {
+              this.presentToastDuration('bottom', error.message, 'danger', 1500);
+            }
+          });
+        }
       }
       console.log(this.allTopics);
     }
